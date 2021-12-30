@@ -8,9 +8,9 @@ go get github.com/damiva/TengoHTTP
 ### Function
 ```golang
 // GetModuleMAP returns Builtin Tengo Module, where:
-// c - HTTP Client for HTTP Request, if nil - &http.Client{} is used
+// cln  - HTTP Client for HTTP Request, if nil - &http.Client{} is used
 // vars - custom variables can be added to the module, custom variables take precedence over builtin variables
-func GetModuleMAP(w http.ResponseWriter, r *http.Request, c *http.Client, vars map[string]tengo.Object) map[string]tengo.Object
+func GetModuleMAP(w http.ResponseWriter, r *http.Request, cln *http.Client, vars map[string]tengo.Object) map[string]tengo.Object
 ```
 ### Example
 ```golang
