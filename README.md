@@ -83,7 +83,7 @@ srv := import("server")
 - `read([string/bool]) => {bytes/string/map/error}`: where:
 	- if the argument is absent: returns the body of the request as {bytes}
 	- if the argument is {string}: returns the first value for the named component of the query as {string}, POST/PUT body parameters take precedence over URL query string values;
-	- if the argument = *true*: returns fields of the query as {map of arrays of strings}, POST/PUT body parameters take precedence over URL query string values;
+	- if the argument = *true*: returns fields of the query as {map of arrays of strings} or {error} (if there is an error parsing the query), POST/PUT body parameters take precedence over URL query string values;
 	- if the argument = *false*: returns fileds of the GET query (URL query string values) only as {map of arrays of strings};
 - `write([any]...) => [error]`:
 - `request({string}[, string/bytes/map]) => {map/error}`:
