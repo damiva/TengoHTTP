@@ -30,7 +30,7 @@ var script = []byte(`
 srv := import("server")
 rsp := srv.request("http://google.com", "HEAD")
 srv.log("Request answer:", is_error(rsp) ? rsp : rsp.status)
-srv.write("Hello from ", srv.name, " v. ", srv.version)
+srv.body("Hello from ", srv.name, " v. ", srv.version)
 `)
 
 func tengoLog(args ...tengo.Object) (tengo.Object, error) {
@@ -75,22 +75,26 @@ srv := import("server")
 - `method {string}`: the HTTP method (GET, POST, PUT, etc.) of the request;
 - `host {string}`: the host on which the URL is sought;
 - `remote_addr {string}`: the network address that sent the request;
-- `header {map of arrays of strings}`: the request header fields of the request;
+- `header {map of arrays of strings}`: the request header fields;
 - `uri {string}`: unmodified request-target of the Request-Line (RFC 7230, Section 3.1.1) as sent by the client to a server;
 - `raw_query {string}`: encoded URL query string (without '?') of the request.
 
 ### Functions
-- `read([string/bool]) => {bytes/string/map/error}`: where:
-	- if the argument is absent: returns the body of the request as {bytes}
-	- if the argument is {string}: returns the first value for the named component of the query as {string}, POST/PUT body parameters take precedence over URL query string values;
-	- if the argument = *true*: returns fields of the query as {map of arrays of strings} or {error} (if there is an error parsing the query), POST/PUT body parameters take precedence over URL query string values;
-	- if the argument = *false*: returns fileds of the POST/PUT body parameters as {map of arrays of strings} or {error} (if there is an error parsing the query);
-- `query([string]) => {string}`:!
-- `write([any]...) => [error]`:
+- `body([any]...) => {bytes/error}`: where:
+	- if no arguments: returns the request body as bytes or error;
+	- if the first argument is {int} set the http status of the response to the {int} code, if {int} between 300 & 399 and the next argument is {string} sends the response as redirect with the code = {int} and the url = {string};
+	- any other arguments are writen to the body of the response;
+- `form([bool/string][,bool]) => {string/map}`: parses the the query as a form and:
+	- if no arguments, returns the fields of the query as {map of srrays of strings}, POST/PUT body parameters take precedence over URL query string values;
+	- if the first argument is *true*, returns the fields of the POST/PUT body parameters as {map of arrays of strings};
+	- if the first argument is *false*, returns the fields of the GET (query string) parameters as {map of arrays of strings};
+	- if the first argument is string returns the first value as {string/undefined} of the named field of:
+		- if the second argument is absent: the query, POST/PUT body parameters take precedence over URL query string values;
+		- if the second argument is *true*: the POST/PUT body parameters;
+		- if the second argument is *false*: the GET (query string) parameters;
 - `request({string}[, string/bytes/map]) => {map/error}`:
 - `uri_encode({string}[, bool]) => {string}`:
 - `uri_decode({string}[, bool]) => {string/error}`:
 - `url_parse([string/map]) => {map/string/error}`:
 - `url_resolve({string}[, string]) => {string/error}`:
-- `query_parse({string/map}) => {map/string/error}`:
 
