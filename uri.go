@@ -11,7 +11,6 @@ func (s *server) parse(args ...tengo.Object) (tengo.Object, error) {
 	switch len(args) {
 	case 0:
 		a = "http://" + s.r.Host + s.r.RequestURI
-		fallthrough
 	case 1:
 		a, _ = tengo.ToString(args[0])
 	default:

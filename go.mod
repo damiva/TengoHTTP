@@ -1,4 +1,4 @@
-module TengoHTTP
+module github.com/damiva/TengoHTTP
 
 go 1.17
 
