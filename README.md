@@ -113,11 +113,11 @@ srv := import("server")
 	 	- "body" {bytes};
 	 	- "size" {int}: number of bytes;
 	 	- "url" {string}: the final url (after all redirects);
-- `encode({string/map}[, bool]) => {string}`: encodes:
+- `encode_uri({string/map}[, bool]) => {string}`: encodes:
 	- if the first parameter is map, it encodes the structure of url to string, the map should be map of arrays of string;
 	- if the first parameter is string, it escapes string to query (to path, if bool is true);
-- `decode({string}[, bool]) => {string/error}`: unescapes query (path, if bool is true) to string;
-- `parse([string]) => {map/error}`: parses url (if argument is absent url = url of the request) to components and returns map:
+- `decode_uri({string}[, bool]) => {string/error}`: unescapes query (path, if bool is true) to string;
+- `parse_url([string]) => {map/error}`: parses url (if argument is absent url = url of the request) to components and returns map:
 	- "scheme" {string},
 	- "opaque" {string},
 	- "user" {string},
@@ -128,5 +128,5 @@ srv := import("server")
 	- "raw_query" {string}: encoded query,
 	- "fragment" {string}: unescaped fragment,
 	- "raw_fragment" {string}: escaped fragment;
-- `resolve({string}[, string]) => {string/error}`:
+- `resolve_url({string}[, string]) => {string/error}`:
 
