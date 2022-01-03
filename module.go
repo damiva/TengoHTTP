@@ -10,15 +10,17 @@ type server struct {
 	w http.ResponseWriter
 	r *http.Request
 	c *http.Client
-	//	p string
 	h bool
 }
 
-func GetModuleMAP(w http.ResponseWriter, r *http.Request, c *http.Client, vars map[string]tengo.Object) map[string]tengo.Object {
-	if c == nil {
-		c = &http.Client{}
+// GetModuleMAP returns Builtin Tengo Module, where:
+// cln  - HTTP Client for HTTP Request, if nil - &http.Client{} is used
+// vars - custom variables can be added to the module, custom variables take precedence over builtin variables
+func GetModuleMAP(w http.ResponseWriter, r *http.Request, cln *http.Client, vars map[string]tengo.Object) map[string]tengo.Object {
+	if cln == nil {
+		cln = &http.Client{}
 	}
-	s := &server{w, r, c, false}
+	s := &server{w, r, cln, false}
 	ret := map[string]tengo.Object{
 		"proto":       &tengo.String{Value: r.Proto},
 		"method":      &tengo.String{Value: r.Method},
@@ -26,15 +28,13 @@ func GetModuleMAP(w http.ResponseWriter, r *http.Request, c *http.Client, vars m
 		"remote_addr": &tengo.String{Value: r.RemoteAddr},
 		"header":      vals2map(r.Header),
 		"uri":         &tengo.String{Value: r.RequestURI},
-		"raw_query":   &tengo.String{Value: r.URL.RawQuery},
-		"read":        &tengo.UserFunction{Name: "read", Value: s.read},
 		"write":       &tengo.UserFunction{Name: "write", Value: s.write},
+		"read":        &tengo.UserFunction{Name: "read", Value: s.read},
 		"request":     &tengo.UserFunction{Name: "request", Value: s.request},
-		"uri_encode":  &tengo.UserFunction{Name: "uri_encode", Value: encode},
-		"uri_decode":  &tengo.UserFunction{Name: "uri_decode", Value: decode},
-		"url_parse":   &tengo.UserFunction{Name: "url_parse", Value: s.parse},
-		"url_resolve": &tengo.UserFunction{Name: "url_resolve", Value: s.resolve},
-		"query_parse": &tengo.UserFunction{Name: "query_parse", Value: query},
+		"encode_uri":  &tengo.UserFunction{Name: "encode_uri", Value: encode},
+		"decode_uri":  &tengo.UserFunction{Name: "decode_uri", Value: decode},
+		"parse_url":   &tengo.UserFunction{Name: "parse_url", Value: s.parse},
+		"resolve_url": &tengo.UserFunction{Name: "resolve_url", Value: s.resolve},
 	}
 	for k, v := range vars {
 		ret[k] = v

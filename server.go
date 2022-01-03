@@ -3,38 +3,40 @@ package tengohttp
 import (
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/d5/tengo/v2"
 )
 
-func (s *server) read(args ...tengo.Object) (r tengo.Object, e error) {
+func (s *server) read(args ...tengo.Object) (tengo.Object, error) {
+	var a string
 	switch len(args) {
-	case 0:
-		if bs, er := ioutil.ReadAll(s.r.Body); er == nil {
-			r = &tengo.Bytes{Value: bs}
-		} else {
-			r = &tengo.Error{Value: &tengo.String{Value: er.Error()}}
-		}
+	case 2:
+		a, _ = tengo.ToString(args[1])
+		fallthrough
 	case 1:
-		switch a := args[0].(type) {
-		case *tengo.String:
-			r = &tengo.String{Value: s.r.FormValue(a.Value)}
-		case *tengo.Bool:
-			if er := s.r.ParseForm(); er != nil {
-				r = &tengo.Error{Value: &tengo.String{Value: e.Error()}}
-			} else if a.IsFalsy() {
-				r = vals2map(s.r.PostForm)
-			} else {
-				r = vals2map(s.r.Form)
-			}
-		default:
-			e = tengo.ErrInvalidArgumentType{Name: "first", Expected: "string/bool", Found: args[0].TypeName()}
+		var q *url.Values
+		if args[0].IsFalsy() {
+			q = &s.r.Form
+		} else {
+			q = &s.r.PostForm
+		}
+		if a == "" {
+			return vals2map(*q), nil
+		} else if q.Has(a) {
+			return &tengo.String{Value: q.Get(a)}, nil
+		}
+	case 0:
+		if b, e := ioutil.ReadAll(s.r.Body); e != nil {
+			return &tengo.Error{Value: &tengo.String{Value: e.Error()}}, nil
+		} else {
+			return &tengo.Bytes{Value: b}, nil
 		}
 	default:
-		e = tengo.ErrWrongNumArguments
+		return nil, tengo.ErrWrongNumArguments
 	}
-	return
+	return nil, nil
 }
 func (s *server) write(args ...tengo.Object) (tengo.Object, error) {
 	c := 0
