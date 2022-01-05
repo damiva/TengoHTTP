@@ -26,11 +26,12 @@ func (s *server) read(args ...tengo.Object) (tengo.Object, error) {
 				if a != "" {
 					return &tengo.String{Value: a}, nil
 				} else if pst && s.r.PostForm.Has(v.Value) || !pst && s.r.Form.Has(v.Value) {
-					return &tengo.String{Value: ""}, nil
+					return &tengo.String{}, nil
 				}
 			}
 		case *tengo.Bool:
-			if v.IsFalsy() {
+			pst = !v.IsFalsy()
+			if pst {
 				if s.r.PostForm == nil {
 					s.r.ParseForm()
 				}
