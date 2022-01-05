@@ -83,8 +83,8 @@ srv := import("server")
 - `read({bool}) => {map of arrays of strings}`: parses the request and:
 	- if {bool} is falsy, returns the fields of the query, POST/PUT body parameters take precedence over URL query string values;
 	- else returns the fields of the POST/PUT body parameters;
-- `read({bool}, {string}) => {string/undefined}`: parses the request and returns the first value of the named {string} field of:
-	- if {bool} is falsy: the query, POST/PUT body parameters take precedence over URL query string values;(
+- `read({string}[, bool]) => {string/undefined}`: parses the request and returns the first value of the named {string} field of:
+	- if [bool] is falsy or absent: the query, POST/PUT body parameters take precedence over URL query string values;(
 	- else: the POST/PUT body parameters;
 - `write([any]...) => {undefined/error}`: writes the response, where:
 	- if an argument is {map} sets the headers of the response, it should be map of arrays of strings, and should be set before status or body writings;
