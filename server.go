@@ -3,32 +3,46 @@ package tengohttp
 import (
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strconv"
 
 	"github.com/d5/tengo/v2"
 )
 
 func (s *server) read(args ...tengo.Object) (tengo.Object, error) {
-	var a string
+	var pst bool
 	switch len(args) {
 	case 2:
-		a, _ = tengo.ToString(args[1])
+		pst = !args[1].IsFalsy()
 		fallthrough
 	case 1:
-		var q *url.Values
-		if s.r.Form == nil {
-			s.r.ParseForm()
-		}
-		if args[0].IsFalsy() {
-			q = &s.r.Form
-		} else {
-			q = &s.r.PostForm
-		}
-		if a == "" {
-			return vals2map(*q), nil
-		} else if q.Has(a) {
-			return &tengo.String{Value: q.Get(a)}, nil
+		switch v := args[0].(type) {
+		case *tengo.String:
+			if a := v.Value; a != "" {
+				if pst {
+					a = s.r.PostFormValue(a)
+				} else {
+					a = s.r.FormValue(a)
+				}
+				if a != "" {
+					return &tengo.String{Value: a}, nil
+				} else if pst && s.r.PostForm.Has(v.Value) || !pst && s.r.Form.Has(v.Value) {
+					return &tengo.String{Value: ""}, nil
+				}
+			}
+		case *tengo.Bool:
+			if v.IsFalsy() {
+				if s.r.PostForm == nil {
+					s.r.ParseForm()
+				}
+				return vals2map(s.r.PostForm), nil
+			} else {
+				if s.r.Form == nil {
+					s.r.ParseForm()
+				}
+				return vals2map(s.r.Form), nil
+			}
+		default:
+			return nil, tengo.ErrInvalidArgumentType{Name: "first", Expected: "string/bool", Found: args[0].TypeName()}
 		}
 	case 0:
 		if b, e := ioutil.ReadAll(s.r.Body); e != nil {
