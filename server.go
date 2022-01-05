@@ -17,6 +17,9 @@ func (s *server) read(args ...tengo.Object) (tengo.Object, error) {
 		fallthrough
 	case 1:
 		var q *url.Values
+		if s.r.Form == nil {
+			s.r.ParseForm()
+		}
 		if args[0].IsFalsy() {
 			q = &s.r.Form
 		} else {
