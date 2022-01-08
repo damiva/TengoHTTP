@@ -129,6 +129,6 @@ srv := import("server")
 	- "fragment" {string}: unescaped fragment,
 	- "raw_fragment" {string}: escaped fragment;
 - `resolve_url({string}[, string]) => {string/error}`: resolves the url links:
-	- if there are two arguments, forst id base url, second is the reference to solve;
+	- if there are two arguments, first is the base url, second is the reference to solve;
 	- if there is one argument, base url is the request url ("http://" + host + uri), and the argument is the reference to resolve.
 
